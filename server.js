@@ -67,5 +67,8 @@ app.get('/posts/:id', async (req, res) => {
       console.log(err.message);
     }
   });
+  
 
 app.listen(3000);
+
+module.exports = app;

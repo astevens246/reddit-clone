@@ -4,7 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "mocha --exit"
   },
   "author": "",
   "license": "ISC",
@@ -13,5 +14,10 @@
     "express-handlebars": "^7.1.2",
     "express-validator": "^7.0.1",
     "mongoose": "^8.3.2"
+  },
+  "devDependencies": {
+    "chai": "^5.1.0",
+    "chai-http": "^4.4.0",
+    "mocha": "^10.4.0"
   }
 }
