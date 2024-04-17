@@ -7,19 +7,25 @@ const { engine } = require('express-handlebars');
 const Post = require('./models/post');
 const comments = require('./controllers/comments');
 
+const cookieParser = require('cookie-parser');
 
 const app = express();
 
 // SET UP MIDDLEWARE
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser()); 
+
 
 // Set db
+require('dotenv').config();
 require('./data/reddit-db');
 
 require('./controllers/posts')(app);
 
 require('./controllers/comments.js')(app);
+
+require('./controllers/auth.js')(app);
 
 app.engine('handlebars', engine());
 app.set('view engine', 'handlebars');
