@@ -67,6 +67,16 @@ app.get('/posts/:id', async (req, res) => {
       console.log(err.message);
     }
   });
+
+  // SUBREDDIT
+  app.get('/n/:subreddit', async (req, res) => {
+    try {
+      const posts = await Post.find({ subreddit: req.params.subreddit }).lean();
+      res.render('posts-index', { posts });
+    } catch (err) {
+      console.log(err);
+    }
+  });
   
 
 app.listen(3000);
