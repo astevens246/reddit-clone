@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 // Define the connection string for your MongoDB database
 const url = 'mongodb://localhost/reddit-db';
 
-mongoose.connect(url, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(url)
   .then(() => console.log('Connected successfully to database'))
   .catch(err => console.error('Database connection error: ', err));
 
