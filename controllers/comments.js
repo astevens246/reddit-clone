@@ -1,5 +1,6 @@
 const Post = require('../models/post');
 const Comment = require('../models/comment');
+const User = require('../models/user'); // Add this line
 
 module.exports = function(app) {
   // CREATE Comment
@@ -14,6 +15,13 @@ module.exports = function(app) {
       const post = await Post.findById(req.params.postId);
       post.comments.unshift(comment);
       await post.save();
+
+      // Add these lines
+      const user = await User.findById(req.user._id);
+      comment.author = user._id;
+      await comment.save();
+      user.comments.unshift(comment);
+      await user.save();
 
       res.redirect('/');
     } catch (err) {

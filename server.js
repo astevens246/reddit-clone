@@ -31,11 +31,13 @@ app.set('view engine', 'handlebars');
 app.set('views', './views');
 
 // ROUTES
+// INDEX
 app.get('/', async (req, res) => {
+  const { user } = req;
+  console.log(req.cookies);
   try {
-    const currentUser = req.user;
-    const posts = await Post.find({}).lean(); // Add .lean() here
-    res.render('posts-index', { posts, currentUser });
+    const posts = await Post.find({}).lean().populate('author');
+    res.render('posts-index', { posts, user });
   } catch (err) {
     console.log(err.message);
   }
@@ -69,9 +71,11 @@ app.post('/posts', (req, res) => {
 
 // LOOK UP THE POST
 app.get('/posts/:id', async (req, res) => {
+  const currentUser = req.user;
+
   try {
-    const post = await Post.findById(req.params.id).lean().populate('comments');
-    res.render('post-show', { post });
+    const post = await Post.findById(req.params.id).lean().populate('comments').populate('author');
+    res.render('posts-show', { post, currentUser });
   } catch (err) {
     console.log(err.message);
   }
@@ -79,9 +83,11 @@ app.get('/posts/:id', async (req, res) => {
 
 // SUBREDDIT
 app.get('/n/:subreddit', async (req, res) => {
+  const currentUser = req.user;
+  const { subreddit } = req.params;
+
   try {
-    const currentUser = req.user; // Add this line
-    const posts = await Post.find({ subreddit: req.params.subreddit }).lean();
+    const posts = await Post.find({ subreddit }).lean().populate('author');
     res.render('posts-index', { posts, currentUser });
   } catch (err) {
     console.log(err);
