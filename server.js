@@ -99,28 +99,24 @@ app.post('/posts', (req, res) => {
 });
 
 // LOOK UP THE POST
-app.get('/posts/:id', async (req, res) => {
+// SHOW
+app.get('/posts/:id', (req, res) => {
   const currentUser = req.user;
-
-  try {
-    const post = await Post.findById(req.params.id).lean().populate({ path:'comments', populate: { path: 'author' } }).populate('author');
-    res.render('posts-show', { post, currentUser });
-  } catch (err) {
-    console.log(err.message);
-  }
+  Post.findById(req.params.id).populate('comments').lean()
+    .then((post) => res.render('posts-show', { post, currentUser }))
+    .catch((err) => {
+      console.log(err.message);
+    });
 });
 
 // SUBREDDIT
-app.get('/n/:subreddit', async (req, res) => {
-  const currentUser = req.user;
-  const { subreddit } = req.params;
-
-  try {
-    const posts = await Post.find({ subreddit }).lean().populate('author');
-    res.render('posts-index', { posts, currentUser });
-  } catch (err) {
-    console.log(err);
-  }
+app.get('/n/:subreddit', (req, res) => {
+  const { user } = req;
+  Post.find({ subreddit: req.params.subreddit }).lean()
+    .then((posts) => res.render('posts-index', { posts, user }))
+    .catch((err) => {
+      console.log(err);
+    });
 });
 
 // CREATE Comment
