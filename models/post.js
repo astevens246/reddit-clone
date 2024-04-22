@@ -1,5 +1,6 @@
 const { Schema, model } = require('mongoose');
 
+// Post model
 const postSchema = new Schema({
   title: { type: String, required: true },
   url: { type: String, required: true },

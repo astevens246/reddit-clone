@@ -39,12 +39,13 @@ app.set('view engine', 'handlebars');
 app.set('views', './views');
 
 // ROUTES
+
 // INDEX
 app.get('/', async (req, res) => {
   const currentUser = req.user;
 
   try {
-    const posts = await Post.find({});
+    const posts = await Post.find({}).populate('author');
     res.render('posts-index', { posts, currentUser });
   } catch (err) {
     console.log(err.message);
@@ -54,7 +55,7 @@ app.get('/', async (req, res) => {
 app.get('/posts', async (req, res) => {
   try {
     const currentUser = req.user; // Add this line
-    const posts = await Post.find({}).lean();
+    const posts = await Post.find({}).lean().populate('author');
     return res.render('posts-index', { posts, currentUser });
   } catch (err) {
     console.log(err.message);
@@ -63,6 +64,13 @@ app.get('/posts', async (req, res) => {
 
 // POSTS
 // CREATE
+app.get('/posts/new', (req, res) => {
+  // Code for displaying the new post form
+  res.render('posts-new', {
+    currentUser: req.user
+  });
+});
+
 app.post('/posts/new', async (req, res) => {
   if (req.user) {
     const post = new Post(req.body);
@@ -78,7 +86,6 @@ app.post('/posts/new', async (req, res) => {
     return res.status(401); // UNAUTHORIZED
   }
 });
-
 
 app.post('/posts', (req, res) => {
   const post = new Post(req.body);

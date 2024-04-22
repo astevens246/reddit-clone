@@ -8,9 +8,9 @@
         <button type="submit" class="btn btn-primary">Save</button>
       </div>
     </form>
-  {{#each post.comments}}
-    <p>{{this.content}}</p>
-    <p>{{post.author.username}}</p>
-  {{/each}}
+{{#each post.comments}}
+  <p>{{this.content}}</p>
+  <p class="text-right">{{this.author.username}}</p>
+{{/each}}
   </div>
 </div>

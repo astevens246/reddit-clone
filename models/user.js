@@ -1,10 +1,13 @@
 const { Schema, model } = require('mongoose');
 const bcrypt = require('bcryptjs');
 
+// User model
 const userSchema = new Schema({
   username: { type: String, required: true },
   password: { type: String, select: false },
+  posts: [{ type: Schema.Types.ObjectId, ref: 'Post' }], // Add this line
 }, { timestamps: true });
+
 
 // Must use function expressions here! ES6 => functions do not bind this!
 userSchema.pre('save', function (next) {
