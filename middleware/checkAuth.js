@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 
 const checkAuth = (req, res, next) => {
-  // Skip the authentication check for the sign-up route
+  console.log('Checking authentication'); // Add this line
   if (req.path === '/sign-up') {
     return next();
   }

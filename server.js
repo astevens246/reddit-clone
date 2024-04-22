@@ -1,7 +1,15 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const { engine } = require('express-handlebars');
+const expressHandlebars = require('express-handlebars');
 
+// ... rest of your code ...
+
+const handlebarsInstance = expressHandlebars.create({
+  handlebars: require('handlebars'),
+  runtimeOptions: {
+    allowProtoPropertiesByDefault: true
+  }
+});
 // Import the Post model from models/post.js
 const Post = require('./models/post');
 const Comment = require('./models/comment'); // Add this line
@@ -26,18 +34,18 @@ require('./controllers/posts')(app);
 require('./controllers/comments.js')(app);
 require('./controllers/auth.js')(app);
 
-app.engine('handlebars', engine());
+app.engine('handlebars', handlebarsInstance.engine);
 app.set('view engine', 'handlebars');
 app.set('views', './views');
 
 // ROUTES
 // INDEX
 app.get('/', async (req, res) => {
-  const { user } = req;
-  console.log(req.cookies);
+  const currentUser = req.user;
+
   try {
-    const posts = await Post.find({}).lean().populate('author');
-    res.render('posts-index', { posts, user });
+    const posts = await Post.find({});
+    res.render('posts-index', { posts, currentUser });
   } catch (err) {
     console.log(err.message);
   }
@@ -54,9 +62,23 @@ app.get('/posts', async (req, res) => {
 });
 
 // POSTS
-app.get('/posts/new', (req, res) => {
-  res.render('posts-new',{});
-})
+// CREATE
+app.post('/posts/new', async (req, res) => {
+  if (req.user) {
+    const post = new Post(req.body);
+
+    try {
+      await post.save();
+      res.redirect('/');
+    } catch (err) {
+      console.log(err.message);
+      res.status(500).send("Server Error");
+    }
+  } else {
+    return res.status(401); // UNAUTHORIZED
+  }
+});
+
 
 app.post('/posts', (req, res) => {
   const post = new Post(req.body);

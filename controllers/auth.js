@@ -39,14 +39,16 @@ app.get('/login', (req, res) => {
 // LOGIN POST
 app.post('/login', async (req, res) => {
   // Authenticate User
-  const user = await User.findOne({ username: req.body.username });
+  const user = await User.findOne({ username: req.body.username }).select('+password');
 
-  if (!user) {
+  console.log(`Logging in with username: ${req.body.username}, retrieved user: ${user}`);
+
+
+  if (!user || !req.body.password || !user.password) {
     return res.status(400).send({ err: 'Invalid username or password' });
   }
-
-  const isMatch = req.body.password && await bcrypt.compare(req.body.password, user.password);
-
+  
+  const isMatch = await bcrypt.compare(req.body.password, user.password);
   if (isMatch) {
     // Create JWT and set as cookie
     const token = jwt.sign({ _id: user._id }, process.env.SECRET, { expiresIn: '60 days' });
