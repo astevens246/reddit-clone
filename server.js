@@ -33,6 +33,7 @@ require('./data/reddit-db');
 require('./controllers/posts')(app);
 require('./controllers/comments.js')(app);
 require('./controllers/auth.js')(app);
+require('./controllers/replies.js')(app);
 
 app.engine('handlebars', handlebarsInstance.engine);
 app.set('view engine', 'handlebars');
@@ -64,16 +65,18 @@ app.get('/posts', async (req, res) => {
 
 // POSTS
 // CREATE
-app.get('/posts/new', (req, res) => {
-  // Code for displaying the new post form
-  res.render('posts-new', {
-    currentUser: req.user
-  });
-});
+
 
 app.post('/posts/new', async (req, res) => {
+  console.log(req.body);
   if (req.user) {
-    const post = new Post(req.body);
+    const post = new Post({
+      title: req.body.title,
+      url: req.body.url,
+      summary: req.body.summary,
+      subreddit: req.body.subreddit, 
+      author: req.user._id
+    });
 
     try {
       await post.save();
@@ -99,7 +102,6 @@ app.post('/posts', (req, res) => {
 });
 
 // LOOK UP THE POST
-// SHOW
 app.get('/posts/:id', (req, res) => {
   const currentUser = req.user;
   Post.findById(req.params.id).populate('comments').lean()
@@ -120,18 +122,32 @@ app.get('/n/:subreddit', (req, res) => {
 });
 
 // CREATE Comment
-app.post('/posts/:postId/comments', (req, res) => {
+app.post('/posts/:postId/comments', async (req, res) => {
   // INSTANTIATE INSTANCE OF MODEL
   const comment = new Comment(req.body);
+  comment.author = req.user._id;
 
-  // SAVE INSTANCE OF Comment MODEL TO DB
-  comment
-    .save()
-    // REDIRECT TO THE ROOT
-    .then(() => res.redirect('/'))
-    .catch((err) => {
+  try {
+    // SAVE INSTANCE OF Comment MODEL TO DB
+    await comment.save();
+
+    // Find the post with the id provided in the url
+    const post = await Post.findById(req.params.postId);
+
+    // Associate the comment with the post
+    post.comments.unshift(comment._id);
+
+    console.log(post);
+
+    // Save the post
+    await post.save();
+
+    // REDIRECT TO THE POST
+    res.redirect(`/posts/${req.params.postId}`);
+  } catch (err) {
     console.log(err);
-    });
+    res.redirect('/');
+  }
 });
 
 // LOGOUT
