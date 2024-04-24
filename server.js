@@ -21,6 +21,8 @@ const checkAuth = require('./middleware/checkAuth');
 const app = express();
 
 // SET UP MIDDLEWARE
+app.use(express.static('public'));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser()); 
@@ -138,6 +140,33 @@ app.post('/posts/:postId/comments', (req, res) => {
 app.get('/logout', (req, res) => {
   res.clearCookie('nToken');
   res.redirect('/');
+});
+
+// Voting Routes
+app.put('/posts/:id/vote-up', async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    post.upVotes.push(req.user._id);
+    post.voteScore += 1;
+    await post.save();
+
+    return res.status(200);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+app.put('/posts/:id/vote-down', async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    post.downVotes.push(req.user._id);
+    post.voteScore -= 1;
+    await post.save();
+
+    return res.status(200);
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 app.listen(3000);

@@ -9,6 +9,9 @@ module.exports = (app) => {
       const userId = req.user._id;
       const post = new Post(req.body);
       post.author = userId;
+      post.upVotes = [];
+      post.downVotes = [];
+      post.voteScore = 0;
 
       try {
         await post.save();
