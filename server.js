@@ -2,7 +2,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const expressHandlebars = require('express-handlebars');
 
-// ... rest of your code ...
 
 const handlebarsInstance = expressHandlebars.create({
   handlebars: require('handlebars'),
